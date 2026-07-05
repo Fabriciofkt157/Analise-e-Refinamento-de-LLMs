@@ -10,7 +10,7 @@ Rasp = Raspberry Pi 5 (8GB)
 
 
 Baterias de testes:
-Um conjunto de 200 perguntas de conhecimentos gerais e conversação foi escrito e submetido ao modelo com seus pesos originais (safetensors). As respostas originais podem ser conferidas em '/Baterias de testes/Conhecimentos\_gerais-v1.txt'
+Um conjunto de 200 perguntas de conhecimentos gerais e conversação foi escrito e submetido ao modelo com seus pesos originais (safetensors) usando VM. As respostas originais podem ser conferidas em '/Baterias de testes/Conhecimentos\_gerais-v1.txt'
 Como resultado, o modelo demonstrou grande imprecisão em suas respostas. Em sua grande maioria estavam factualmente incorretas, contendo diversos erros gramaticais e interlinguagem (uso de palavras de outras línguas quando uma correspondente existe no idioma solicitado).
 
 Um conjunto de 300 prompts tratando sobre regionalismos brasileiros (gírias de diferentes regiões do Brasil) foi escrito e submetido ao modelo quantizado em Q6\_K\_M usando Rasp. Como resultado, o modelo demonstrou completa insuficiência no quesito veracidade da informação: o modelo alucinou respostas para os 300 prompts. As respostas podem ser encontradas em '/Bateria de testes/Resultado\_regionalismos.txt'.
@@ -24,3 +24,5 @@ Um conjunto de pares user -> assistant foram formulados a partir dos resultados 
     user: E aí, Pierre!
     assistant: Olá, como posso te ajudar?
       |-> Deve ser adaptado para soar mais natural, como "E aí? Tudo certo?"
+
+Último par refinado em resultado_limpo-1.txt: 50
