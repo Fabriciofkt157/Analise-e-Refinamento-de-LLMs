@@ -25,4 +25,4 @@ Um conjunto de pares user -> assistant foram formulados a partir dos resultados 
     assistant: Olá, como posso te ajudar?
       |-> Deve ser adaptado para soar mais natural, como "E aí? Tudo certo?"
 
-Último par refinado em resultado_limpo-1.txt: 50
+Último par refinado em resultado_limpo-1.txt: 93
