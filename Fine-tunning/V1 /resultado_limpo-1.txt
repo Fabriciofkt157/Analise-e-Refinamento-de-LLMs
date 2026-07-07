@@ -11,17 +11,8 @@ Paris é a capital da França.
 ID Identificador: 2
 Prompt de Entrada: Como funciona o ciclo da água?
 Texto Gerado:
-O ciclo da água é o movimento contínuo da água nos estados sólido, líquido e gasoso entre a superfície terrestre e a atmosfera, impulsionado principalmente pela energia do Sol e pela força da gravidade.
+Basicamente, a água evapora dos rios e oceanos com o calor do sol, vira nuvem lá em cima e, quando esfria, cai de novo como chuva. Aí ela volta pra terra e pros rios, e o processo recomeça. Esse ciclo é fundamental porque regula o clima, distribui água doce pelo planeta e mantém os ecossistemas vivos.
 
-1. Evaporação: A água dos oceanos, rios, lagos e do solo úmido é aquecida pelo Sol e se transforma em vapor d'água, subindo para a atmosfera.
-2. Transpiração: As plantas absorvem água do solo e liberam vapor d'água através de seus poros (estômatos) para a atmosfera.
-3. Condensação: O vapor d'água sobe, encontra camadas mais frias da atmosfera, perde calor e se transforma em pequenas gotículas de água, formando as nuvens.
-4. Precipitação: Quando as gotículas das nuvens se unem e ficam pesadas, caem na superfície terrestre na forma de chuva, neve ou granizo.
-5. Infiltração: Parte da água da chuva penetra no solo, abastecendo os aquíferos (águas subterrâneas).
-6. Escoamento (ou Drenagem): A água que não infiltra escorre pela superfície do solo, formando riachos e rios, que levam a água de volta aos oceanos.
-7. Acumulação (ou Armazenamento): A água fica armazenada em oceanos, geleiras, aquíferos, lagos e represas, aguardando o próximo ciclo.
-
-Esse ciclo é fundamental porque regula o clima, distribui água doce pelo planeta e mantém os ecossistemas vivos.
 --------------------------------------------------
 ID Identificador: 3
 Prompt de Entrada: Traduza 'bom dia' para o inglês.
@@ -244,20 +235,7 @@ Os continentes do mundo são: Europa, África, Ásia, América do Norte, Améric
 ID Identificador: 21
 Prompt de Entrada: Como investir no mercado de ações para iniciantes?
 Texto Gerado:
-Para investir no mercado de ações como iniciante, é importante entender o que são ações e como o mercado de ações funciona. Ações representam uma pequena parte de uma empresa e dão ao investidor o direito de participar dos lucros e decisões, proporcionalmente à sua participação.
-
-Aqui estão algumas dicas para começar:
-
-1. Tenha uma reserva de emergência: Antes de investir, é importante ter um dinheiro guardado para imprevistos, como perda de emprego ou despesas médicas.
-2. Aprenda sobre a empresa: Antes de investir em uma empresa, é importante entender o que ela faz, como ganha dinheiro e se ela está crescendo.
-3. Invista em uma variedade de empresas: Não é bom investir apenas em uma empresa. Diversificar seus investimentos pode ajudar a reduzir o risco.
-4. Invista a longo prazo: Ações são um investimento de longo prazo. Não é recomendável investir apenas para tentar ganhar dinheiro rápido, pois o mercado é volátil.
-5. Use uma estratégia de investimento: Existem várias estratégias, como investir em empresas consolidadas (valor) ou em empresas em crescimento. Escolha uma que se adapte ao seu perfil.
-6. Use uma plataforma de investimento: Existem muitas plataformas online, como corretoras de valores, que permitem comprar e vender ações de forma prática e segura.
-7. Invista com dinheiro que você não precisará imediatamente: Invista apenas o dinheiro que você pode deixar aplicado por alguns anos, sem necessidade de usar a curto prazo.
-8. Mantenha-se atualizado: O mercado de ações muda constantemente. Acompanhe notícias econômicas e tendências do setor para tomar decisões mais informadas.
-
-Em resumo, para investir no mercado de ações como iniciante, é importante entender o que são as ações e como o mercado funciona. Diversificar os investimentos, ter uma estratégia, usar uma plataforma confiável, investir com dinheiro que você não precisará imediatamente e manter-se atualizado podem ajudar a reduzir o risco e aumentar as chances de sucesso.
+O ideal é começar montando uma reserva de emergência primeiro. Depois, abra uma conta em uma corretora e comece aos poucos, comprando ações de empresas que você conhece e entende como dão lucro. Diversificar é a chave pra não correr riscos à toa.
 
 --------------------------------------------------
 ID Identificador: 22
@@ -374,17 +352,7 @@ Os cinco sentidos humanos são: visão, audição, tato, olfato e paladar.
 ID Identificador: 33
 Prompt de Entrada: Como fazer um currículo atraente?
 Texto Gerado:
-Para fazer um currículo atraente, é importante seguir algumas dicas e recomendações:
-
-1. Inclua uma breve descrição do seu perfil profissional: apresente-se e diga um pouco sobre o que faz, o que te faz diferente e o que te torna atraente para o emprego que está procurando.
-2. Use palavras e frases curtas e claras: evite frases longas e complicadas, pois podem ficar confusas.
-3. Destaque resultados e conquistas: use exemplos reais de situações em que você teve sucesso, mostrando como resolveu problemas ou alcançou metas.
-4. Personalize para cada vaga: adapte as palavras e frases para que sejam relevantes ao cargo e à empresa que está almejando.
-5. Mantenha um layout limpo e organizado: use fontes legíveis, espaçamento adequado e evite excesso de informações. Imagens e gráficos só devem ser usados se forem realmente necessários para a área (como design ou arquitetura).
-6. Use uma linguagem clara, objetiva e positiva: mostre que você é responsável, motivado e capaz de realizar as tarefas exigidas.
-7. Revise a ortografia e a gramática: erros de digitação passam uma imagem de descuido e podem prejudicar sua candidatura.
-
-Seguindo essas dicas, seu currículo terá mais chances de chamar a atenção dos recrutadores.
+Um bom currículo tem que ir direto ao ponto. Coloque suas experiências mais recentes, destaque os resultados que você gerou e mantenha o visual limpo, sem muita firula. O recrutador precisa bater o olho e entender rápido o que você faz.
 
 --------------------------------------------------
 ID Identificador: 34
@@ -509,15 +477,7 @@ Os algoritmos podem ser escritos em várias linguagens de programação, como Py
 ID Identificador: 46
 Prompt de Entrada: Como funciona o protocolo HTTP?
 Texto Gerado:
-O protocolo HTTP (Hypertext Transfer Protocol) é um protocolo de comunicação de dados que é usado para a transferência de informações na World Wide Web (WWW). Ele é baseado na internet e permite que os navegadores web enviem solicitações para os servidores de conteúdo e recebam respostas em formato de texto simples.
-
-O HTTP é um protocolo de camada de aplicação da internet que é usado para a transferência de dados entre um cliente e um servidor web. Ele é baseado em três partes: solicitação, resposta e gerenciamento de estado (que geralmente é feito por mecanismos auxiliares, como cookies e sessões).
-
-1. Solicitação: A solicitação é enviada pelo cliente web para o servidor web. Ela contém informações sobre o tipo de conteúdo que o cliente deseja obter, como o tipo de conteúdo (por exemplo, texto, imagem, vídeo), a localização do conteúdo e outras informações adicionais (como cabeçalhos com dados de autenticação ou preferências do usuário). A solicitação é enviada através de uma conexão de rede estabelecida entre o cliente e o servidor.
-2. Resposta: A resposta é enviada pelo servidor web para o cliente web. Ela contém o conteúdo solicitado pelo cliente, bem como outras informações adicionais, como o código de status (indicando sucesso ou erro), o tempo de vida do conteúdo e informações de cache. A resposta é enviada através da mesma conexão de rede que foi usada para enviar a solicitação.
-3. Gerenciamento de estado: O HTTP é um protocolo sem estado, o que significa que cada solicitação é independente e não mantém informações sobre solicitações anteriores. Para manter uma sessão ou armazenar dados entre requisições, são utilizados mecanismos como cookies, sessões no servidor ou tokens de autenticação, que permitem que o servidor reconheça o cliente em interações subsequentes.
-
-O HTTP é um protocolo de camada de aplicação e, por si só, não fornece criptografia nativa. Isso significa que ele não oferece, de forma nativa, mecanismos de autenticação forte ou criptografia dos dados transmitidos. Isso pode ser um problema se você estiver enviando informações confidenciais através do HTTP.
+O HTTP é a base da comunicação na internet. Quando você digita um site, seu navegador manda um pedido (request) pro servidor onde o site está hospedado. O servidor processa isso e devolve uma resposta (response) com a página pra carregar na sua tela.
 
 Para fornecer segurança ao envio de informações confidenciais, é necessário usar protocolos de camada de segurança, como o HTTPS (Hypertext Transfer Protocol Secure). O HTTPS é semelhante ao HTTP, mas ele usa criptografia (através do TLS/SSL) para proteger as informações que são enviadas entre o cliente e o servidor. Isso significa que as informações enviadas através do HTTPS são criptografadas e só podem ser decifradas pelo servidor que as recebeu.
 
@@ -557,15 +517,7 @@ O homem sorri e diz: "Então, você deve gostar da minha cigarola."
 ID Identificador: 50
 Prompt de Entrada: Como melhorar a qualidade do sono?
 Texto Gerado:
-Para melhorar a qualidade do sono, você pode seguir algumas recomendações:
-
-1. Estabeleça um horário regular de sono e tente segui-lo todos os dias.
-2. Diminua o consumo de cafeína e álcool próximo ao momento de dormir.
-3. Evite refeições pesadas e alimentos com alto teor de açúcar perto da hora de dormir.
-4. Diminua o consumo de nicotina, especialmente antes de deitar.
-5. Crie um ambiente escuro, silencioso e com temperatura agradável para facilitar o descanso.
-
-Com base nessas recomendações, você pode começar a melhorar o seu sono adotando essas mudanças na sua rotina. Lembre-se de que a consistência é fundamental para obter resultados duradouros.
+Tente criar uma rotina para deitar e acordar nos mesmos horários. Evite café, telas de celular e refeições pesadas perto da hora de dormir. Um quarto escuro e silencioso também ajuda muito.
 
 --------------------------------------------------
 ID Identificador: 51
@@ -683,41 +635,18 @@ ID Identificador: 60
 Prompt de Entrada: O que é a Via Láctea?
 Texto Gerado:
 A Via Láctea é a galáxia que contém o nosso sistema solar, incluindo a Terra. Ela é uma galáxia espiral barrada, com uma forma característica de espiral em sua estrutura. Está localizada a cerca de 100.000 anos-luz de diâmetro e contém bilhões de estrelas, além de gás e poeira. A Via Láctea é uma das galáxias mais conhecidas e estudadas, sendo estimada com uma massa de cerca de 10^12 massas solares.
+
 --------------------------------------------------
 ID Identificador: 61
 Prompt de Entrada: Como fazer uma boa apresentação em público?
 Texto Gerado:
-Para fazer uma boa apresentação em público, é importante seguir algumas dicas e estratégias:
-
-1. Pré-apresentação: Antes da apresentação, é importante se preparar mental e emocionalmente. Fazer uma pré-apresentação com alguém que te apoie e te conforte pode ajudar a reduzir a ansiedade e aumentar a confiança.
-
-2. Compreender o público: Antes de começar a apresentar, é importante entender quem será o público. Qual é a idade, gênero, interesses e expectativas? Isso ajudará a personalizar a apresentação e a se conectar com o público.
-
-3. Planejar a apresentação: Antes de começar a apresentar, é importante planejar o conteúdo e a estrutura da apresentação. Isso ajudará a garantir que a apresentação esteja organizada e coerente.
-
-4. Utilizar recursos: Para fazer uma apresentação interessante e atraente, é importante utilizar recursos como slides, vídeos, música e atividades interativas. Isso ajudará a capturar a atenção do público e a tornar a apresentação mais memorável.
-
-5. Ser atencioso ao público: Durante a apresentação, é importante ser atencioso ao público e tentar se conectar com eles. Responda às perguntas, seja atento aos comentários e faça exemplos que sejam fáceis de entender.
-
-6. Ser confortável com a apresentação: Para se sentir confortável durante a apresentação, é importante se preparar mental e emocionalmente. Se sentir nervoso ou ansioso, pode ser útil fazer uma pré-apresentação com alguém que te apoie ou praticar em várias ocasiões.
-
-7. Ser direto e claro: Durante a apresentação, é importante ser objetivo e ir direto ao ponto. Evite informações inúteis ou histórias que não sejam relevantes para o público.
-
-8. Ser agradável e simpático: Durante a apresentação, é importante ser simpático e tentar se conectar com o público.
-
-9. Ser atento às críticas: Durante a apresentação, é importante estar aberto a perguntas e comentários. Responda com atenção e esclareça qualquer dúvida.
-
-10. Ser memorável: Use suas habilidades de comunicação e recursos para deixar um impacto positivo no público.
+O principal ponto é dominar o assunto e conhecer sua plateia. Treine o conteúdo antes, você pode ensaiar a apresentação com seus amigos. Vá direto ao ponto sem enrolação e tente interagir com as pessoas em vez de só ler os slides. Antes de começar a apresentar, é importante planejar o conteúdo e a estrutura da apresentação. Isso ajudará a garantir que a apresentação esteja organizada e coerente.
 
 --------------------------------------------------
 ID Identificador: 62
 Prompt de Entrada: Qual a diferença entre um furacão e um tornado?
 Texto Gerado:
-Um furacão é um ciclone tropical que se forma sobre águas quentes do Oceano Atlântico, Oceano Pacífico ou Oceano Índico. Ele é caracterizado por um centro de baixa pressão e ventos fortes que giram em torno deste centro. Os furacões são classificados de acordo com a velocidade do vento máximo, com o furacão de categoria 5 sendo o mais forte.
-
-Por outro lado, um tornado é um fenômeno atmosférico que se forma a partir de tempestades severas, quando o ar quente e úmido sobe rapidamente e encontra correntes de ar frio, criando um vórtice de vento que toca o solo. Os tornados são classificados de acordo com a intensidade do vento, com o tornado de categoria F5 sendo o mais forte.
-
-Em resumo, enquanto um furacão é um ciclone tropical que se forma sobre as águas e pode ter centenas de quilômetros de diâmetro, um tornado é um fenômeno local que se forma sobre a terra e tem alguns quilômetros de diâmetro. Ambos podem causar estragos significativos, mas os furacões tendem a afetar áreas muito maiores e são mais previsíveis, enquanto os tornados são mais imprevisíveis e podem surgir rapidamente.
+Um furacão é um ciclone tropical que se forma sobre águas quentes do Oceano Atlântico, Oceano Pacífico ou Oceano Índico. Ele é caracterizado por um centro de baixa pressão e ventos fortes que giram em torno deste centro. Os furacões são classificados de acordo com a velocidade do vento máximo, com o furacão de categoria 5 sendo o mais forte. Já um tornado é um fenômeno atmosférico que se forma a partir de tempestades severas, quando o ar quente e úmido sobe rapidamente e encontra correntes de ar frio, criando um vórtice de vento que toca o solo. Os tornados são classificados de acordo com a intensidade do vento, com o tornado de categoria F5 sendo o mais forte.
 
 --------------------------------------------------
 ID Identificador: 63
