@@ -251,6 +251,8 @@ Texto Gerado:
 
 --------------------------------------------------
 ID Identificador: 24
+Prompt de Entrada: Quais os benefícios de beber água?
+Texto Gerado:
 Beber água tem muitos benefícios para a saúde. Alguns deles incluem:
 
 1. Prevenção de desidratação: A água é essencial para manter a hidratação corporal e evitar a desidratação, que pode levar a sintomas como fadiga, dor de cabeça e constipação.
@@ -1820,6 +1822,8 @@ O maior lago do mundo em área é o Mar Cáspio, localizado entre a Europa e a �
 
 --------------------------------------------------
 ID Identificador: 175
+Prompt de Entrada: Como eu faço pra cortar uma cebola sem chorar?
+Texto Gerado:
 Para cortar uma cebola sem chorar, você pode seguir estas dicas:
 
 1. Use uma faca bem afiada: uma faca cega esmaga as células da cebola, liberando mais compostos voláteis que irritam os olhos.
