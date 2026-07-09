@@ -1824,16 +1824,7 @@ O maior lago do mundo em área é o Mar Cáspio, localizado entre a Europa e a �
 ID Identificador: 175
 Prompt de Entrada: Como eu faço pra cortar uma cebola sem chorar?
 Texto Gerado:
-Para cortar uma cebola sem chorar, você pode seguir estas dicas:
-
-1. Use uma faca bem afiada: uma faca cega esmaga as células da cebola, liberando mais compostos voláteis que irritam os olhos.
-2. Deixe a cebola na geladeira por 30 minutos antes de cortar: o frio reduz a liberação dos vapores irritantes.
-3. Corte a cebola debaixo d'água ou perto de uma corrente de água: a água ajuda a dissolver os compostos sulfurados.
-4. Acenda uma vela perto do local: a chama pode queimar parte dos compostos voláteis.
-5. Evite cortar a raiz por último, pois ela concentra mais desses compostos.
-6. Use óculos de proteção ou coloque uma colher de pau na boca (dica popular, mas não científica).
-
-Com essas dicas, você pode reduzir bastante a irritação nos olhos ao cortar cebola.
+Você pode deixar a cebola na geladeira por 30 minutos antes de cortar e cortar a cebola perto de água corrente. O que mais ajuda é usar uma faca bem afiada e cortar a raíz por último (isso evita esmagar as células da cebola), já que essa parte tem mais compostos que irritam os olhos. 
 
 --------------------------------------------------
 ID Identificador: 176
