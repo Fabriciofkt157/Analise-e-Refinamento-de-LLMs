@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat LLM Kaggle</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
+        #chatbox { border: 1px solid #ccc; border-radius: 8px; padding: 15px; height: 500px; overflow-y: auto; background-color: #f9f9f9; margin-bottom: 15px; }
+        .mensagem { margin-bottom: 15px; padding: 10px; border-radius: 8px; max-width: 80%; }
+        .usuario { background-color: #d1e7dd; margin-left: auto; text-align: right; }
+        .bot { background-color: #e2e3e5; margin-right: auto; text-align: left; }
+        .feedback-container { margin-top: 8px; text-align: right; }
+        .btn-feedback { cursor: pointer; background: none; border: 1px solid #ccc; padding: 5px 10px; border-radius: 5px; margin-left: 5px; }
+        .btn-feedback:hover { background-color: #ddd; }
+        .input-group { display: flex; gap: 10px; }
+        input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        button { padding: 10px 20px; background-color: #0d6efd; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0b5ed7; }
+    </style>
+</head>
+<body>
+
+    <h2>Interface LLM Kaggle</h2>
+    
+    <div id="chatbox"></div>
+    
+    <div class="input-group">
+        <input type="text" id="promptInput" placeholder="Digite seu prompt aqui..." onkeypress="handleEnter(event)">
+        <button onclick="enviarPrompt()">Enviar</button>
+    </div>
+
+    <script>
+        
+        const API_URL = "https://SEU_LINK_NGROK.ngrok-free.app";
+
+        function adicionarMensagem(texto, remetente, idInteracao = null) {
+            const chatbox = document.getElementById("chatbox");
+            const divMensagem = document.createElement("div");
+            divMensagem.classList.add("mensagem", remetente);
+            divMensagem.innerText = texto;
+
+            if (remetente === "bot" && idInteracao) {
+                const feedbackDiv = document.createElement("div");
+                feedbackDiv.classList.add("feedback-container");
+                
+                const btnLike = document.createElement("button");
+                btnLike.classList.add("btn-feedback");
+                btnLike.innerText = "👍";
+                btnLike.onclick = () => registrarFeedback(idInteracao, "like", feedbackDiv);
+                
+                const btnDislike = document.createElement("button");
+                btnDislike.classList.add("btn-feedback");
+                btnDislike.innerText = "👎";
+                btnDislike.onclick = () => registrarFeedback(idInteracao, "dislike", feedbackDiv);
+
+                feedbackDiv.appendChild(btnLike);
+                feedbackDiv.appendChild(btnDislike);
+                divMensagem.appendChild(feedbackDiv);
+            }
+
+            chatbox.appendChild(divMensagem);
+            chatbox.scrollTop = chatbox.scrollHeight;
+            return divMensagem;
+        }
+
+        async function enviarPrompt() {
+            const input = document.getElementById("promptInput");
+            const prompt = input.value.trim();
+            if (!prompt) return;
+
+            adicionarMensagem(prompt, "usuario");
+            input.value = "";
+
+            const loadingMsg = adicionarMensagem("Gerando resposta...", "bot");
+
+            try {
+                const resposta = await fetch(`${API_URL}/chat`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt: prompt, max_tokens: 4000 })
+                });
+
+                if (!resposta.ok) throw new Error("Erro na rede");
+
+                const dados = await resposta.json();
+                
+                // Atualiza a mensagem de carregamento com a resposta real e adiciona os botões
+                loadingMsg.remove();
+                adicionarMensagem(dados.resposta, "bot", dados.id_interacao);
+
+            } catch (erro) {
+                loadingMsg.innerText = "Erro ao conectar com a API.";
+                console.error(erro);
+            }
+        }
+
+        async function registrarFeedback(idInteracao, tipoFeedback, containerElement) {
+            try {
+                await fetch(`${API_URL}/feedback`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id_interacao: idInteracao, feedback: tipoFeedback })
+                });
+
+                containerElement.innerHTML = `<span style="font-size: 0.8em; color: gray;">Feedback enviado (${tipoFeedback === 'like' ? '👍' : '👎'})</span>`;
+            } catch (erro) {
+                alert("Erro ao enviar o feedback.");
+                console.error(erro);
+            }
+        }
+
+        function handleEnter(evento) {
+            if (evento.key === "Enter") {
+                enviarPrompt();
+            }
+        }
+    </script>
+
+</body>
+</html>
