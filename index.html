@@ -21,7 +21,7 @@
 </head>
 <body>
 
-    <h2>Pierre V3</h2>
+    <h2>Pierre V4</h2>
     
     <div id="chatbox"></div>
     
@@ -33,6 +33,7 @@
     <script>
         
         const API_URL = "https://racoon-crook-passerby.ngrok-free.dev";
+        const session_id = "sessao_" + Math.random().toString(36).substring(2, 15);
 
         function adicionarMensagem(texto, remetente, idInteracao = null) {
             const chatbox = document.getElementById("chatbox");
@@ -78,14 +79,13 @@
                 const resposta = await fetch(`${API_URL}/chat`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt: prompt, max_tokens: 4000 })
+                    body: JSON.stringify({ session_id: session_id, prompt: prompt, max_tokens: 4000 })
                 });
 
                 if (!resposta.ok) throw new Error("Erro na rede");
 
                 const dados = await resposta.json();
                 
-                // Atualiza a mensagem de carregamento com a resposta real e adiciona os botões
                 loadingMsg.remove();
                 adicionarMensagem(dados.resposta, "bot", dados.id_interacao);
 
