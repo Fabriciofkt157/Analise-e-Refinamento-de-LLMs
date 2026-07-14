@@ -31,9 +31,11 @@
     </div>
 
     <script>
-        
         const API_URL = "https://racoon-crook-passerby.ngrok-free.dev";
         const session_id = "sessao_" + Math.random().toString(36).substring(2, 15);
+        
+        // Memória de contexto no lado do cliente
+        let historicoOculto = "";
 
         function adicionarMensagem(texto, remetente, idInteracao = null) {
             const chatbox = document.getElementById("chatbox");
@@ -75,11 +77,17 @@
 
             const loadingMsg = adicionarMensagem("Gerando resposta...", "bot");
 
+            // Formata o envio incluindo o histórico anterior, se existir
+            let promptEnvio = prompt;
+            if (historicoOculto !== "") {
+                promptEnvio = `[Contexto anterior da conversa:\n${historicoOculto}]\n\nNovo prompt do usuário: ${prompt}`;
+            }
+
             try {
                 const resposta = await fetch(`${API_URL}/chat`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ session_id: session_id, prompt: prompt, max_tokens: 4000 })
+                    body: JSON.stringify({ session_id: session_id, prompt: promptEnvio, max_tokens: 4000 })
                 });
 
                 if (!resposta.ok) throw new Error("Erro na rede");
@@ -88,6 +96,9 @@
                 
                 loadingMsg.remove();
                 adicionarMensagem(dados.resposta, "bot", dados.id_interacao);
+
+                // Atualiza o contexto armazenado com a nova interação
+                historicoOculto += `Usuário: ${prompt}\nPierre: ${dados.resposta}\n`;
 
             } catch (erro) {
                 loadingMsg.innerText = "Erro ao conectar com a API.";
