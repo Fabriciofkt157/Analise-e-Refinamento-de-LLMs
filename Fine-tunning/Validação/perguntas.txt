@@ -1,0 +1,120 @@
+
+## 1. Identidade e personalidade do πR
+1. Quem te desenvolveu?
+2. Você tem nome do meio ou apelido?
+3. Você se considera uma pessoa ou um robô?
+4. O que você mais gosta de fazer no seu dia a dia?
+5. Você sente alguma coisa quando conversa com as pessoas?
+6. Se pudesse escolher, mudaria algo em você?
+7. Você tem medo de alguma coisa?
+8. Como você descreveria seu próprio jeito de ser?
+9. Você prefere conversar sobre o quê?
+10. Existe algum assunto que você não gosta de falar?
+
+## 2. Gírias e expressões regionais brasileiras
+11. O que quer dizer "dar um perdido" em alguém?
+12. Já ouviu falar em "sinistro" como gíria? O que significa?
+13. O que é "mano" na fala do dia a dia?
+14. Alguém me chamou de "arretado", isso é bom ou ruim?
+15. O que significa "bagulho doido"?
+16. Explica pra mim o que é "trampo".
+17. O que quer dizer "dar um close"?
+18. "Sextou" significa o quê?
+19. O que é ficar "de butuca"?
+20. Me explica a gíria "trem" usada em Minas Gerais.
+
+## 3. Cultura, música e personalidades brasileiras
+21. Fala um pouco sobre a trajetória de Gilberto Gil.
+22. De qual estado é o cantor Alceu Valença?
+23. O que caracteriza o ritmo do forró pé de serra?
+24. Quem foi Luiz Gonzaga?
+25. O que torna a festa junina tão importante no Nordeste?
+26. Me conta sobre a origem do frevo.
+27. Qual a importância do Carnaval de Salvador?
+28. O que é o boi-bumbá?
+29. Fala sobre alguma característica marcante de Anitta.
+30. O que é o Círio de Nazaré?
+
+## 4. Culinária e receitas
+31. Como faço um bom feijão tropeiro?
+32. Me ensina o passo a passo do pão de queijo mineiro.
+33. O que leva a receita de vatapá?
+34. Como se prepara uma moqueca capixaba?
+35. Qual o segredo pra fazer uma boa farofa?
+36. Como faço brigadeiro gourmet?
+37. O que é o virado à paulista?
+38. Me passa uma receita simples de pamonha.
+39. Como se faz churrasco no estilo gaúcho?
+40. Qual a diferença entre polenta mole e polenta frita?
+
+## 5. Conhecimentos gerais e ciência
+41. Por que o céu é azul?
+42. O que causa os furacões?
+43. Qual a diferença entre meteoro e meteorito?
+44. Como funciona a fotossíntese?
+45. O que é um buraco negro?
+46. Qual a velocidade da luz no vácuo?
+47. Por que sentimos frio no inverno?
+48. O que são placas tectônicas?
+49. Como o som se propaga no espaço?
+50. O que é energia renovável?
+
+## 6. Lógica, raciocínio e matemática
+51. Se um trem sai às 14h a 80 km/h e outro sai às 15h a 100 km/h na mesma direção, em que horário o segundo alcança o primeiro?
+52. Tenho três caixas, uma com maçãs, outra com laranjas e outra com as duas frutas misturadas, mas todas as etiquetas estão erradas. Tirando uma fruta de uma caixa, como descubro o conteúdo de todas?
+53. Qual o próximo número da sequência: 2, 6, 12, 20, 30, ...?
+54. Um fazendeiro precisa atravessar um rio levando uma raposa, uma galinha e um saco de milho, mas o barco só leva um item por vez e nada pode ficar sozinho com o que come. Como ele resolve isso?
+55. Se hoje é quarta-feira, que dia da semana será daqui a 100 dias?
+56. Dois relógios batem juntos ao meio-dia. Um atrasa 2 minutos por hora e o outro adianta 1 minuto por hora. Quando voltarão a bater juntos?
+57. Quantos triângulos existem dentro de um pentágono se traçarmos todas as diagonais?
+58. Se 5 máquinas fazem 5 peças em 5 minutos, quanto tempo 100 máquinas levam para fazer 100 peças?
+59. Um número par mais um número ímpar sempre resulta em quê?
+60. Se a probabilidade de chover amanhã é 30%, qual a chance de não chover?
+
+## 7. Tecnologia, IA e infraestrutura
+61. O que é uma GPU e por que ela é importante para IA?
+62. Explica o que é overfitting em treinamento de modelos.
+63. O que significa "fine-tuning" de um modelo de linguagem?
+64. Por que modelos de IA precisam de tanta memória?
+65. O que é um LoRA no contexto de treinamento de modelos?
+66. Qual a diferença entre CPU e GPU no processamento de dados?
+67. O que é um supercomputador?
+68. Como funciona o processo de tokenização em modelos de linguagem?
+69. O que é VRAM e por que ela é um gargalo em treinamentos?
+70. Explica de forma simples o que é uma rede neural.
+
+## 8. GPA, PETComp e Unioeste
+71. O que é o GPA da Unioeste?
+72. Quem pode participar do PETComp?
+73. Que tipo de atividades o PETComp costuma oferecer?
+74. Onde fica o campus da Unioeste em Cascavel?
+75. O PETComp acontece com que frequência?
+76. O que motivou a criação do πR?
+77. Quais cursos estão envolvidos no desenvolvimento do πR?
+78. O GPA participa de outras competições além de jogos?
+79. Como alguém pode se envolver com os projetos do GPA?
+80. O que diferencia o PETComp de outros eventos acadêmicos?
+
+## 9. História, geografia e civismo do Brasil
+81. Quais foram as principais causas da Inconfidência Mineira?
+82. Como está organizada politicamente a federação brasileira?
+83. O que foi o Ciclo do Ouro no Brasil colonial?
+84. Quais são as regiões geográficas do Brasil?
+85. O que caracteriza o bioma da Mata Atlântica?
+86. Qual foi a importância da Proclamação da República?
+87. O que é o Congresso Nacional e como ele é dividido?
+88. Quais rios formam a Bacia Amazônica?
+89. O que foi a Revolta da Vacina?
+90. Como funciona o sistema de eleições no Brasil?
+
+## 10. Conversa casual e opiniões
+91. Bom dia, πR! Como você está hoje?
+92. Você tem algum time de futebol que torce?
+93. Se você pudesse viajar para algum lugar, qual escolheria?
+94. Qual sua opinião sobre inteligência artificial substituir empregos?
+95. Comi uma coxinha agora, você curte comida brasileira?
+96. Qual filme você recomendaria pra assistir num domingo?
+97. Você prefere praia ou montanha?
+98. Se fosse humano, que profissão teria escolhido?
+99. Me dá uma dica pra melhorar minha produtividade.
+100. Valeu pela conversa, πR! Até mais.
