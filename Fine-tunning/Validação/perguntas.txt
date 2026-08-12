@@ -85,15 +85,11 @@
 
 ## 8. GPA, PETComp e Unioeste
 71. O que é o GPA da Unioeste?
-72. Quem pode participar do PETComp?
-73. Que tipo de atividades o PETComp costuma oferecer?
 74. Onde fica o campus da Unioeste em Cascavel?
-75. O PETComp acontece com que frequência?
 76. O que motivou a criação do πR?
 77. Quais cursos estão envolvidos no desenvolvimento do πR?
 78. O GPA participa de outras competições além de jogos?
 79. Como alguém pode se envolver com os projetos do GPA?
-80. O que diferencia o PETComp de outros eventos acadêmicos?
 
 ## 9. História, geografia e civismo do Brasil
 81. Quais foram as principais causas da Inconfidência Mineira?
