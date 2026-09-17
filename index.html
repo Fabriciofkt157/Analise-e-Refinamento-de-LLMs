@@ -356,17 +356,63 @@
 
   // ---------------- Speech recognition (voz -> texto) ----------------
   const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const SpeechGrammarListAPI = window.SpeechGrammarList || window.webkitSpeechGrammarList;
   let recognition = null;
   let sttSupported = !!SpeechRecognitionAPI;
+
+  // Palavras que o reconhecedor costuma confundir com "Pierre" ou "πR" — corrigidas antes de enviar.
+  const CORRECOES_NOME = [
+    [/\bpi[\s\-]?er+[eéê]?\b/gi, 'Pierre'],
+    [/\bpy+er+[eéê]?\b/gi, 'Pierre'],
+    [/\bpier\b/gi, 'Pierre'],
+    [/\bpi[eé]?[eé]?rr?[iy]\b/gi, 'Pierre'],
+    [/\bp[ie]{1,2}[eé]?rre?\b/gi, 'Pierre'],
+    [/\bpi[\s\-]?[êe]rr?e\b/gi, 'Pierre'],
+    [/\bpi[\s\-]?agre?\b/gi, 'Pierre'],
+    [/\bpi[\s\-]?r\b/gi, 'πR']
+  ];
+  function corrigirNomeRobo(texto){
+    let corrigido = texto;
+    for(const [regex, troca] of CORRECOES_NOME){
+      corrigido = corrigido.replace(regex, troca);
+    }
+    return corrigido;
+  }
 
   if(sttSupported){
     recognition = new SpeechRecognitionAPI();
     recognition.lang = VOICE_LANG;
-    recognition.continuous = false;
+    // continuous=true evita que o navegador corte o reconhecimento na primeira pausa da fala;
+    // quem decide quando a fala terminou é o temporizador de silêncio abaixo, não o navegador.
+    recognition.continuous = true;
     recognition.interimResults = true;
+    recognition.maxAlternatives = 3;
+
+    if(SpeechGrammarListAPI){
+      try{
+        const grammar = '#JSGF V1.0; grammar nomes; public <nome> = Pierre | πR | Pi R ;';
+        const lista = new SpeechGrammarListAPI();
+        lista.addFromString(grammar, 1);
+        recognition.grammars = lista;
+      }catch(e){ /* SpeechGrammarList é apenas um reforço opcional */ }
+    }
+
+    let transcricaoAcumulada = '';
+    let timerSilencio = null;
+    const SILENCIO_MS = 1400; // tempo de pausa tolerado antes de considerar a fala concluída
+
+    function agendarFinalizacao(){
+      clearTimeout(timerSilencio);
+      timerSilencio = setTimeout(() => {
+        if(transcricaoAcumulada.trim()){
+          try{ recognition.stop(); }catch(e){}
+        }
+      }, SILENCIO_MS);
+    }
 
     recognition.onstart = () => {
       recognizing = true;
+      transcricaoAcumulada = '';
       setState('listening');
       setStatus('ouvindo...');
       setCaption('pode falar', true);
@@ -374,22 +420,22 @@
 
     recognition.onresult = (event) => {
       let interim = '';
-      let final = '';
       for(let i = event.resultIndex; i < event.results.length; i++){
         const t = event.results[i][0].transcript;
-        if(event.results[i].isFinal) final += t;
-        else interim += t;
+        if(event.results[i].isFinal){
+          transcricaoAcumulada += t + ' ';
+        } else {
+          interim += t;
+        }
       }
-      if(final.trim()){
-        setCaption(final.trim(), false);
-        enviarPrompt(final.trim());
-      } else if(interim.trim()){
-        setCaption(interim.trim(), false);
-      }
+      const exibicao = (transcricaoAcumulada + interim).trim();
+      if(exibicao) setCaption(exibicao, false);
+      agendarFinalizacao();
     };
 
     recognition.onerror = (event) => {
       recognizing = false;
+      clearTimeout(timerSilencio);
       if(event.error === 'no-speech'){
         setState('idle');
         setStatus('não ouvi nada — toque para tentar de novo');
@@ -398,6 +444,8 @@
         setState('error');
         setStatus('permissão de microfone negada');
         setCaption('ative o microfone nas configurações do navegador', true);
+      } else if(event.error === 'aborted'){
+        // interrompido intencionalmente (toque no orbe ou finalização por silêncio) — nada a fazer aqui
       } else {
         setState('error');
         setStatus('erro no reconhecimento de voz');
@@ -407,7 +455,13 @@
 
     recognition.onend = () => {
       recognizing = false;
-      if(stage.dataset.state === 'listening'){
+      clearTimeout(timerSilencio);
+      const textoFinal = corrigirNomeRobo(transcricaoAcumulada.trim());
+      transcricaoAcumulada = '';
+      if(textoFinal){
+        setCaption(textoFinal, false);
+        enviarPrompt(textoFinal);
+      } else if(stage.dataset.state === 'listening'){
         setState('idle');
         setStatus('toque para conversar');
       }
@@ -463,7 +517,7 @@
     }catch(erro){
       awaitingResponse = false;
       setState('error');
-      setStatus('não consegui falar com o πR');
+      setStatus('não foi possível contatar o servidor');
       setCaption('verifique a conexão com a API', true);
       console.error(erro);
     }
