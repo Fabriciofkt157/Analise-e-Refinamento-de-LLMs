@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>πR — Conversa por voz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --amber: #E69A2E;   /* ouvindo */
+    --blue: #3D6FD6;    /* pensando */
+    --teal: #29A88A;    /* falando */
+    --red: #D8493C;     /* erro */
+  }
+  html[data-theme="dark"]{
+    --bg-1: #10151d; --bg-2: #0A0D12; --bg-3: #05070A;
+    --panel: #12161D; --panel-border: #1F2530;
+    --ink: #E8ECF1; --ink-dim: #8B95A3; --ink-faint: #4E5764;
+    --amber: #FFB454; --blue: #5B8DEF; --teal: #6EE7C8; --red: #F0665A;
+  }
+  html[data-theme="light"]{
+    --bg-1: #FFFFFF; --bg-2: #F3F5F8; --bg-3: #E9EDF2;
+    --panel: #FFFFFF; --panel-border: #E1E6EC;
+    --ink: #1B222C; --ink-dim: #5B6472; --ink-faint: #9AA3B0;
+    --amber: #C97F14; --blue: #3D6FD6; --teal: #1E9C80; --red: #C8402F;
+  }
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    background: radial-gradient(ellipse 900px 600px at 50% 15%, var(--bg-1) 0%, var(--bg-2) 55%, var(--bg-3) 100%);
+    color: var(--ink);
+    font-family: 'Space Grotesk', sans-serif;
+    overflow: hidden;
+    height: 100dvh;
+    display:flex;
+    flex-direction:column;
+    user-select:none;
+    transition: background 300ms ease, color 300ms ease;
+  }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 18px 20px 0;
+    flex-shrink:0;
+  }
+  .brand{ display:flex; flex-direction:column; line-height:1.15; }
+  .brand b{ font-size:15px; font-weight:600; letter-spacing:0.2px; }
+  .brand span{ font-size:11px; color:var(--ink-faint); font-family:'JetBrains Mono',monospace; }
+  .topbar-actions{ display:flex; gap:8px; }
+  .iconbtn{
+    width:38px; height:38px; border-radius:10px;
+    border:1px solid var(--panel-border); background:var(--panel);
+    color:var(--ink-dim); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition: background 300ms ease, border-color 300ms ease, color 300ms ease;
+  }
+  .iconbtn:active{ transform: scale(0.94); }
+  .iconbtn svg.hide{ display:none; }
+
+  /* ---------- Center stage ---------- */
+  .stage{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding: 20px; position:relative; gap: 28px;
+  }
+
+  .orb-wrap{
+    position:relative; width:220px; height:130px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+  .visualizer{
+    display:flex; align-items:center; justify-content:center;
+    gap:10px; height:64px; width:100%;
+  }
+  .dot{
+    width:14px; height:14px; border-radius:50%;
+    background: var(--ink-faint);
+    transition: background 250ms ease, width 220ms ease, height 220ms ease, border-radius 220ms ease, opacity 250ms ease;
+  }
+
+  /* ---- idle: quiet synchronized breathing ---- */
+  .stage[data-state="idle"] .visualizer{ align-items:center; }
+  .stage[data-state="idle"] .dot{ animation: pulseOpacity 3.2s ease-in-out infinite; }
+  @keyframes pulseOpacity{ 0%,100%{ opacity:0.45; } 50%{ opacity:0.9; } }
+
+  /* ---- listening: still, colored, no motion — each dot its own shade of amber ---- */
+  .stage[data-state="listening"] .visualizer{ align-items:center; }
+  .stage[data-state="listening"] .dot{ width:15px; height:15px; }
+  .stage[data-state="listening"] .dot:nth-child(1){ background: color-mix(in srgb, var(--amber) 55%, white); box-shadow: 0 0 12px -2px color-mix(in srgb, var(--amber) 55%, white); }
+  .stage[data-state="listening"] .dot:nth-child(2){ background: color-mix(in srgb, var(--amber) 78%, white); box-shadow: 0 0 12px -2px color-mix(in srgb, var(--amber) 78%, white); }
+  .stage[data-state="listening"] .dot:nth-child(3){ background: var(--amber); box-shadow: 0 0 12px -2px var(--amber); }
+  .stage[data-state="listening"] .dot:nth-child(4){ background: color-mix(in srgb, var(--amber) 82%, black); box-shadow: 0 0 12px -2px color-mix(in srgb, var(--amber) 82%, black); }
+  .stage[data-state="listening"] .dot:nth-child(5){ background: color-mix(in srgb, var(--amber) 62%, black); box-shadow: 0 0 12px -2px color-mix(in srgb, var(--amber) 62%, black); }
+
+  /* ---- thinking (inferência rodando): staggered wave, up and down — each dot its own shade of blue ---- */
+  .stage[data-state="thinking"] .visualizer{ align-items:center; }
+  .stage[data-state="thinking"] .dot{
+    animation: wave 1s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 0.12s);
+  }
+  .stage[data-state="thinking"] .dot:nth-child(1){ background: color-mix(in srgb, var(--blue) 55%, white); box-shadow: 0 0 10px -2px color-mix(in srgb, var(--blue) 55%, white); }
+  .stage[data-state="thinking"] .dot:nth-child(2){ background: color-mix(in srgb, var(--blue) 78%, white); box-shadow: 0 0 10px -2px color-mix(in srgb, var(--blue) 78%, white); }
+  .stage[data-state="thinking"] .dot:nth-child(3){ background: var(--blue); box-shadow: 0 0 10px -2px var(--blue); }
+  .stage[data-state="thinking"] .dot:nth-child(4){ background: color-mix(in srgb, var(--blue) 82%, black); box-shadow: 0 0 10px -2px color-mix(in srgb, var(--blue) 82%, black); }
+  .stage[data-state="thinking"] .dot:nth-child(5){ background: color-mix(in srgb, var(--blue) 62%, black); box-shadow: 0 0 10px -2px color-mix(in srgb, var(--blue) 62%, black); }
+  @keyframes wave{
+    0%,100%{ transform: translateY(0); }
+    50%{ transform: translateY(-16px); }
+  }
+
+  /* ---- speaking: vertical bars, equalizer style — each bar its own shade of teal ---- */
+  .stage[data-state="speaking"] .visualizer{ align-items:flex-end; height:52px; }
+  .stage[data-state="speaking"] .dot{
+    width:7px; height:14px; border-radius:3px;
+    animation: eqbar ease-in-out infinite alternate;
+  }
+  .stage[data-state="speaking"] .dot:nth-child(1){ background: color-mix(in srgb, var(--teal) 55%, white); box-shadow: 0 0 10px -2px color-mix(in srgb, var(--teal) 55%, white); animation-duration:0.52s; animation-delay:0s; }
+  .stage[data-state="speaking"] .dot:nth-child(2){ background: color-mix(in srgb, var(--teal) 78%, white); box-shadow: 0 0 10px -2px color-mix(in srgb, var(--teal) 78%, white); animation-duration:0.68s; animation-delay:0.08s; }
+  .stage[data-state="speaking"] .dot:nth-child(3){ background: var(--teal); box-shadow: 0 0 10px -2px var(--teal); animation-duration:0.44s; animation-delay:0.03s; }
+  .stage[data-state="speaking"] .dot:nth-child(4){ background: color-mix(in srgb, var(--teal) 82%, black); box-shadow: 0 0 10px -2px color-mix(in srgb, var(--teal) 82%, black); animation-duration:0.74s; animation-delay:0.14s; }
+  .stage[data-state="speaking"] .dot:nth-child(5){ background: color-mix(in srgb, var(--teal) 62%, black); box-shadow: 0 0 10px -2px color-mix(in srgb, var(--teal) 62%, black); animation-duration:0.58s; animation-delay:0.05s; }
+  @keyframes eqbar{ 0%{ height:10px; } 100%{ height:48px; } }
+
+  /* ---- error: static, red ---- */
+  .stage[data-state="error"] .dot{ background: var(--red); }
+
+  .status{
+    font-size:13px; color: var(--ink-dim); letter-spacing:0.3px; min-height:18px;
+    transition: color 250ms ease;
+  }
+  .stage[data-state="listening"] .status{ color: var(--amber); }
+  .stage[data-state="thinking"] .status{ color: var(--blue); }
+  .stage[data-state="speaking"] .status{ color: var(--teal); }
+  .stage[data-state="error"] .status{ color: var(--red); }
+
+  .caption{
+    max-width: 560px; width:100%; text-align:center;
+    font-size:17px; line-height:1.5; color: var(--ink);
+    min-height: 26px; padding: 0 16px;
+  }
+  .caption.dim{ color: var(--ink-faint); font-style:italic; }
+
+  /* ---------- Bottom controls ---------- */
+  .controls{
+    flex-shrink:0; display:flex; align-items:center; justify-content:center; gap:18px;
+    padding: 16px 20px 26px;
+  }
+  .toggle{
+    display:flex; align-items:center; gap:9px;
+    font-size:12px; color: var(--ink-dim); font-family:'JetBrains Mono',monospace;
+  }
+  .switch{
+    width:38px; height:22px; border-radius:20px; background: var(--panel);
+    border:1px solid var(--panel-border); position:relative; cursor:pointer; flex-shrink:0;
+  }
+  .switch::after{
+    content:''; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%;
+    background: var(--ink-faint); transition: transform 200ms ease, background 200ms ease;
+  }
+  .switch.on{ border-color: rgba(110,231,200,0.5); }
+  .switch.on::after{ transform: translateX(16px); background: var(--teal); }
+
+  .textfallback{ display:flex; gap:8px; padding: 0 20px 18px; flex-shrink:0; }
+  .textfallback input{
+    flex:1; background:var(--panel); border:1px solid var(--panel-border); color:var(--ink);
+    padding:11px 14px; border-radius:10px; font-family:'Space Grotesk',sans-serif; font-size:14px;
+    transition: background 300ms ease, border-color 300ms ease, color 300ms ease;
+  }
+  .textfallback input:focus{ outline:none; border-color: var(--ink-faint); }
+  .textfallback button{
+    background: var(--panel); border:1px solid var(--panel-border); color: var(--ink-dim);
+    padding: 0 16px; border-radius:10px; cursor:pointer; font-size:13px; font-family:'Space Grotesk',sans-serif;
+  }
+
+  /* ---------- Transcript drawer ---------- */
+  .drawer-backdrop{
+    position:fixed; inset:0; background: rgba(5,7,10,0.45); backdrop-filter: blur(2px);
+    opacity:0; pointer-events:none; transition: opacity 220ms ease; z-index:20;
+  }
+  .drawer-backdrop.open{ opacity:1; pointer-events:auto; }
+  .drawer{
+    position:fixed; top:0; right:0; height:100%; width:min(380px, 100%);
+    background: var(--panel); border-left:1px solid var(--panel-border);
+    transform: translateX(100%); transition: transform 260ms ease; z-index:21;
+    display:flex; flex-direction:column;
+  }
+  .drawer.open{ transform: translateX(0); }
+  .drawer-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 18px 12px; border-bottom:1px solid var(--panel-border); flex-shrink:0;
+  }
+  .drawer-head b{ font-size:14px; }
+  .drawer-list{ flex:1; overflow-y:auto; padding: 12px 16px; }
+  .log-item{ margin-bottom:16px; }
+  .log-role{ font-size:10px; text-transform:lowercase; color:var(--ink-faint); font-family:'JetBrains Mono',monospace; margin-bottom:4px; }
+  .log-text{ font-size:13.5px; line-height:1.5; color: var(--ink); }
+  .log-fb{ margin-top:6px; display:flex; gap:6px; }
+  .log-fb button{
+    background:transparent; border:1px solid var(--panel-border); color:var(--ink-dim);
+    border-radius:6px; padding:3px 8px; font-size:12px; cursor:pointer;
+  }
+  .log-fb button.sent{ opacity:0.4; pointer-events:none; }
+  .log-fb .done{ font-size:11px; color: var(--ink-faint); font-family:'JetBrains Mono',monospace; }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <b>πR v5.2</b>
+    </div>
+    <div class="topbar-actions">
+      <div class="iconbtn" id="btnTheme" title="Alternar tema">
+        <svg id="iconSun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4.2"/><line x1="12" y1="2.5" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="21.5"/><line x1="2.5" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="21.5" y2="12"/><line x1="4.9" y1="4.9" x2="6.6" y2="6.6"/><line x1="17.4" y1="17.4" x2="19.1" y2="19.1"/><line x1="4.9" y1="19.1" x2="6.6" y2="17.4"/><line x1="17.4" y1="6.6" x2="19.1" y2="4.9"/></svg>
+        <svg id="iconMoon" class="hide" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/></svg>
+      </div>
+      <div class="iconbtn" id="btnDrawer" title="Histórico">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg>
+      </div>
+      <div class="iconbtn" id="btnReset" title="Reiniciar conversa">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12a9 9 0 1 1 2.64 6.36"/><polyline points="3 17 3 21 7 21"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="stage" id="stage" data-state="idle">
+    <div class="orb-wrap" id="orbWrap">
+      <div class="visualizer" id="visualizer">
+        <span class="dot" style="--i:0"></span>
+        <span class="dot" style="--i:1"></span>
+        <span class="dot" style="--i:2"></span>
+        <span class="dot" style="--i:3"></span>
+        <span class="dot" style="--i:4"></span>
+      </div>
+    </div>
+    <div class="status mono" id="statusLabel">toque para conversar</div>
+    <div class="caption dim" id="caption"></div>
+  </div>
+
+  <div class="controls">
+    <div class="toggle">
+      <span>conversa contínua</span>
+      <div class="switch on" id="switchContinuo"></div>
+    </div>
+  </div>
+
+  <div class="textfallback">
+    <input type="text" id="textInput" placeholder="ou digite aqui, se preferir..." />
+    <button id="btnSendText">Enviar</button>
+  </div>
+
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-head">
+      <b>Histórico da conversa</b>
+      <div class="iconbtn" id="btnCloseDrawer">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+      </div>
+    </div>
+    <div class="drawer-list" id="drawerList">
+      <div class="log-item"><div class="log-role">sistema</div><div class="log-text" style="color:var(--ink-faint)">Nenhuma mensagem ainda.</div></div>
+    </div>
+  </div>
+
+<script>
+  // ================= CONFIG =================
+  const API_URL = "https://racoon-crook-passerby.ngrok-free.dev";
+  const VOICE_LANG = "pt-BR";
+  // ============================================
+
+  function novoSessionId(){ return "sessao_" + Math.random().toString(36).substring(2, 15); }
+  let session_id = novoSessionId();
+
+  const stage = document.getElementById('stage');
+  const statusLabel = document.getElementById('statusLabel');
+  const caption = document.getElementById('caption');
+  const orbWrap = document.getElementById('orbWrap');
+  const switchContinuo = document.getElementById('switchContinuo');
+  const textInput = document.getElementById('textInput');
+  const btnSendText = document.getElementById('btnSendText');
+  const drawer = document.getElementById('drawer');
+  const drawerBackdrop = document.getElementById('drawerBackdrop');
+  const drawerList = document.getElementById('drawerList');
+  const btnDrawer = document.getElementById('btnDrawer');
+  const btnCloseDrawer = document.getElementById('btnCloseDrawer');
+  const btnReset = document.getElementById('btnReset');
+  const btnTheme = document.getElementById('btnTheme');
+  const iconSun = document.getElementById('iconSun');
+  const iconMoon = document.getElementById('iconMoon');
+
+  let continuo = true;
+  let recognizing = false;
+  let awaitingResponse = false;
+  let firstLogWritten = false;
+
+  function setState(s){ stage.setAttribute('data-state', s); }
+  function setStatus(text){ statusLabel.textContent = text; }
+  function setCaption(text, dim=false){
+    caption.textContent = text;
+    caption.classList.toggle('dim', dim);
+  }
+
+  // ---------------- Tema claro/escuro ----------------
+  function aplicarTema(tema){
+    document.documentElement.setAttribute('data-theme', tema);
+    iconSun.classList.toggle('hide', tema === 'dark');
+    iconMoon.classList.toggle('hide', tema === 'light');
+    try{ localStorage.setItem('pierre-tema', tema); }catch(e){}
+  }
+  let temaSalvo = 'light';
+  try{ temaSalvo = localStorage.getItem('pierre-tema') || 'light'; }catch(e){}
+  aplicarTema(temaSalvo);
+  btnTheme.addEventListener('click', () => {
+    const atual = document.documentElement.getAttribute('data-theme');
+    aplicarTema(atual === 'light' ? 'dark' : 'light');
+  });
+
+  function addLog(role, text, idInteracao=null){
+    if(!firstLogWritten){ drawerList.innerHTML = ''; firstLogWritten = true; }
+    const item = document.createElement('div');
+    item.className = 'log-item';
+    const roleLabel = role === 'usuario' ? 'você' : 'πR';
+    item.innerHTML = `<div class="log-role">${roleLabel}</div><div class="log-text"></div>`;
+    item.querySelector('.log-text').textContent = text;
+
+    if(role === 'bot' && idInteracao){
+      const fb = document.createElement('div');
+      fb.className = 'log-fb';
+      fb.innerHTML = `<button data-fb="like">👍</button><button data-fb="dislike">👎</button>`;
+      fb.querySelectorAll('button').forEach(btn=>{
+        btn.onclick = () => enviarFeedback(idInteracao, btn.dataset.fb, fb);
+      });
+      item.appendChild(fb);
+    }
+    drawerList.appendChild(item);
+    drawerList.scrollTop = drawerList.scrollHeight;
+  }
+
+  async function enviarFeedback(id, tipo, container){
+    container.querySelectorAll('button').forEach(b=>b.classList.add('sent'));
+    try{
+      await fetch(`${API_URL}/feedback`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ id_interacao: id, feedback: tipo })
+      });
+      container.innerHTML = `<span class="done">feedback enviado (${tipo === 'like' ? '👍' : '👎'})</span>`;
+    }catch(e){
+      container.innerHTML = `<span class="done">falha ao enviar feedback</span>`;
+    }
+  }
+
+  // ---------------- Speech recognition (voz -> texto) ----------------
+  const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let recognition = null;
+  let sttSupported = !!SpeechRecognitionAPI;
+
+  if(sttSupported){
+    recognition = new SpeechRecognitionAPI();
+    recognition.lang = VOICE_LANG;
+    recognition.continuous = false;
+    recognition.interimResults = true;
+
+    recognition.onstart = () => {
+      recognizing = true;
+      setState('listening');
+      setStatus('ouvindo...');
+      setCaption('pode falar', true);
+    };
+
+    recognition.onresult = (event) => {
+      let interim = '';
+      let final = '';
+      for(let i = event.resultIndex; i < event.results.length; i++){
+        const t = event.results[i][0].transcript;
+        if(event.results[i].isFinal) final += t;
+        else interim += t;
+      }
+      if(final.trim()){
+        setCaption(final.trim(), false);
+        enviarPrompt(final.trim());
+      } else if(interim.trim()){
+        setCaption(interim.trim(), false);
+      }
+    };
+
+    recognition.onerror = (event) => {
+      recognizing = false;
+      if(event.error === 'no-speech'){
+        setState('idle');
+        setStatus('não ouvi nada — toque para tentar de novo');
+        setCaption('', true);
+      } else if(event.error === 'not-allowed' || event.error === 'service-not-allowed'){
+        setState('error');
+        setStatus('permissão de microfone negada');
+        setCaption('ative o microfone nas configurações do navegador', true);
+      } else {
+        setState('error');
+        setStatus('erro no reconhecimento de voz');
+        setCaption(event.error, true);
+      }
+    };
+
+    recognition.onend = () => {
+      recognizing = false;
+      if(stage.dataset.state === 'listening'){
+        setState('idle');
+        setStatus('toque para conversar');
+      }
+    };
+  }
+
+  function iniciarEscuta(){
+    if(!sttSupported){
+      setState('error');
+      setStatus('reconhecimento de voz indisponível');
+      setCaption('use o Chrome, ou digite sua mensagem abaixo', true);
+      return;
+    }
+    if(awaitingResponse || recognizing) return;
+    if(window.speechSynthesis.speaking) window.speechSynthesis.cancel();
+    try{ recognition.start(); }catch(e){ /* já iniciado */ }
+  }
+
+  orbWrap.addEventListener('click', () => {
+    if(stage.dataset.state === 'listening'){
+      recognition.stop();
+      return;
+    }
+    if(stage.dataset.state === 'speaking'){
+      window.speechSynthesis.cancel();
+      setState('idle');
+      setStatus('toque para conversar');
+      return;
+    }
+    iniciarEscuta();
+  });
+
+  // ---------------- Envio para a API ----------------
+  async function enviarPrompt(texto){
+    if(!texto) return;
+    awaitingResponse = true;
+    addLog('usuario', texto);
+    setState('thinking');
+    setStatus('pensando...');
+    setCaption('', true);
+
+    try{
+      const resposta = await fetch(`${API_URL}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id, prompt: texto, max_tokens: 4000 })
+      });
+      if(!resposta.ok) throw new Error('erro de rede');
+      const dados = await resposta.json();
+      awaitingResponse = false;
+      addLog('bot', dados.resposta, dados.id_interacao);
+      falar(dados.resposta);
+    }catch(erro){
+      awaitingResponse = false;
+      setState('error');
+      setStatus('não consegui falar com o πR');
+      setCaption('verifique a conexão com a API', true);
+      console.error(erro);
+    }
+  }
+
+  // ---------------- Speech synthesis (texto -> voz) ----------------
+  let vozPT = null;
+  function carregarVoz(){
+    const vozes = window.speechSynthesis.getVoices();
+    vozPT = vozes.find(v => v.lang === 'pt-BR') || vozes.find(v => v.lang && v.lang.startsWith('pt')) || null;
+  }
+  if('speechSynthesis' in window){
+    carregarVoz();
+    window.speechSynthesis.onvoiceschanged = carregarVoz;
+  }
+
+  function falar(texto){
+    if(!('speechSynthesis' in window)){
+      setState('idle');
+      setStatus('toque para conversar');
+      setCaption(texto, false);
+      return;
+    }
+    const utter = new SpeechSynthesisUtterance(texto);
+    utter.lang = VOICE_LANG;
+    if(vozPT) utter.voice = vozPT;
+    utter.rate = 1.0;
+    utter.pitch = 1.0;
+
+    utter.onstart = () => {
+      setState('speaking');
+      setStatus('falando...');
+      setCaption(texto, false);
+    };
+
+    utter.onend = () => {
+      if(continuo){
+        setState('idle');
+        setStatus('toque para conversar');
+        setTimeout(() => { if(!recognizing && !awaitingResponse) iniciarEscuta(); }, 350);
+      }else{
+        setState('idle');
+        setStatus('toque para conversar');
+        setCaption('', true);
+      }
+    };
+
+    utter.onerror = () => {
+      setState('idle');
+      setStatus('toque para conversar');
+    };
+
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utter);
+  }
+
+  // ---------------- Fallback de texto ----------------
+  function enviarTexto(){
+    const texto = textInput.value.trim();
+    if(!texto) return;
+    textInput.value = '';
+    enviarPrompt(texto);
+  }
+  btnSendText.addEventListener('click', enviarTexto);
+  textInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') enviarTexto(); });
+
+  // ---------------- Toggle conversa contínua ----------------
+  switchContinuo.addEventListener('click', () => {
+    continuo = !continuo;
+    switchContinuo.classList.toggle('on', continuo);
+  });
+
+  // ---------------- Reset da conversa ----------------
+  function reiniciarConversa(){
+    if(window.speechSynthesis) window.speechSynthesis.cancel();
+    if(recognizing && recognition){ try{ recognition.abort(); }catch(e){} }
+    recognizing = false;
+    awaitingResponse = false;
+    session_id = novoSessionId();
+    firstLogWritten = false;
+    drawerList.innerHTML = '<div class="log-item"><div class="log-role">sistema</div><div class="log-text" style="color:var(--ink-faint)">Nenhuma mensagem ainda.</div></div>';
+    textInput.value = '';
+    setState('idle');
+    setStatus('toque para conversar');
+    setCaption('', true);
+  }
+  btnReset.addEventListener('click', reiniciarConversa);
+
+  // ---------------- Drawer ----------------
+  function abrirDrawer(){ drawer.classList.add('open'); drawerBackdrop.classList.add('open'); }
+  function fecharDrawer(){ drawer.classList.remove('open'); drawerBackdrop.classList.remove('open'); }
+  btnDrawer.addEventListener('click', abrirDrawer);
+  btnCloseDrawer.addEventListener('click', fecharDrawer);
+  drawerBackdrop.addEventListener('click', fecharDrawer);
+
+  // ---------------- Aviso inicial se navegador não suporta STT ----------------
+  if(!sttSupported){
+    setStatus('reconhecimento de voz indisponível');
+    setCaption('use o Chrome/Edge para conversar por voz, ou digite abaixo', true);
+  }
+</script>
+
+</body>
+</html>
