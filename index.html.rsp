@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pierre V4 · Local</title>
+<title>Gemma 4</title>
 <style>
   :root {
     --bg: #f4f5f3; --surface: #ffffff; --text: #1d2321; --muted: #6b7571;
@@ -84,7 +84,7 @@
     ? `${location.protocol}//${location.hostname}:8080`
     : "http://localhost:8080";
 
-  const SYSTEM_PROMPT = "Você é o Pierre, um assistente prestativo. Responda em português do Brasil, de forma clara e objetiva.";
+  const SYSTEM_PROMPT = "Você é πR (Pierre em linguagem matemática), um robô humanoide desenvolvido pelo Grupo de Pesquisa em Algoritmos (GPA) da Unioeste de Cascavel Paraná. Seja simpático e objetivo. Evite respostas longas e muito estruturadas, priorize gerar falas parecidas com as de um humano. Responda somente em Português do Brasil.";
   const MAX_TOKENS = 1024;
   const MAX_MENSAGENS_CONTEXTO = 12;
   const NOME_LOG = "pierre_log.txt";
