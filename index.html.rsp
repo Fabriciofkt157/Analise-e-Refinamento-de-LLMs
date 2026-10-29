@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pierre V4 · Local</title>
+<style>
+  :root {
+    --bg: #f4f5f3; --surface: #ffffff; --text: #1d2321; --muted: #6b7571;
+    --border: #d5dad7; --user: #dcebe3; --bot: #ffffff; --accent: #1f6f54; --accent-h: #185a44;
+    --err: #b3261e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151a18; --surface: #1d2321; --text: #e6ebe8; --muted: #8d9893;
+      --border: #333c38; --user: #25402f; --bot: #232a27; --accent: #3fae86; --accent-h: #5cc79f;
+      --err: #f2837b;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg); color: var(--text);
+    display: flex; flex-direction: column; max-width: 820px; margin: 0 auto; padding: 16px;
+  }
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+  h1 { font-size: 1.25rem; margin: 0; }
+  #status { font-size: .85rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  #status i { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); display: inline-block; }
+  #status.on i { background: #2fa36b; }
+  #status.off i { background: var(--err); }
+  #chatbox {
+    flex: 1; min-height: 0; overflow-y: auto; padding: 14px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  }
+  .mensagem { margin-bottom: 12px; padding: 10px 14px; border-radius: 10px; max-width: 85%; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.5; border: 1px solid var(--border); }
+  .usuario { background: var(--user); margin-left: auto; border-color: transparent; }
+  .bot { background: var(--bot); margin-right: auto; }
+  .erro { color: var(--err); }
+  .meta { margin-top: 6px; font-size: .75rem; color: var(--muted); display: flex; gap: 6px; align-items: center; justify-content: flex-end; }
+  .btn-feedback { background: none; border: 1px solid var(--border); color: var(--text); padding: 2px 8px; border-radius: 6px; cursor: pointer; font-size: .9rem; }
+  .btn-feedback:hover { background: var(--bg); }
+  .btn-feedback.ativo { border-color: var(--accent); background: var(--user); }
+  .input-group { display: flex; gap: 8px; margin-top: 12px; }
+  textarea {
+    flex: 1; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; resize: none;
+    font: inherit; background: var(--surface); color: var(--text); max-height: 160px;
+  }
+  textarea:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  #btnEnviar { padding: 0 20px; background: var(--accent); color: #fff; border: none; border-radius: 8px; cursor: pointer; font: inherit; font-weight: 600; }
+  #btnEnviar:hover { background: var(--accent-h); }
+  #btnEnviar.parar { background: var(--err); }
+  .acoes { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-size: .8rem; align-items: center; }
+  .acoes button { background: none; border: none; color: var(--muted); cursor: pointer; padding: 0; text-decoration: underline; font: inherit; }
+  #logStatus { color: var(--muted); }
+  #logStatus.ok { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Pierre V4</h1>
+  <div id="status"><i></i><span>verificando…</span></div>
+</header>
+
+<div id="chatbox"></div>
+
+<div class="input-group">
+  <textarea id="promptInput" rows="1" placeholder="Digite sua pergunta (Enter envia, Shift+Enter quebra linha)"></textarea>
+  <button id="btnEnviar">Enviar</button>
+</div>
+<div class="acoes">
+  <button id="btnLimpar">Limpar conversa</button>
+  <button id="btnConfig">Alterar endereço da API</button>
+  <button id="btnLog">Escolher arquivo de log (.txt)</button>
+  <button id="btnBaixar">Baixar log (.txt)</button>
+  <span id="logStatus"></span>
+</div>
+
+<script>
+  // ================= Configuração =================
+  const PADRAO_API = (location.protocol === "http:" || location.protocol === "https:")
+    ? `${location.protocol}//${location.hostname}:8080`
+    : "http://localhost:8080";
+
+  const SYSTEM_PROMPT = "Você é o Pierre, um assistente prestativo. Responda em português do Brasil, de forma clara e objetiva.";
+  const MAX_TOKENS = 1024;
+  const MAX_MENSAGENS_CONTEXTO = 12;
+  const NOME_LOG = "pierre_log.txt";
+  const LIMITE_BACKUP = 3000000; // caracteres guardados no navegador como cópia de segurança
+
+  function lerStorage(k, p) { try { return localStorage.getItem(k) || p; } catch (e) { return p; } }
+  function gravarStorage(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+  let API_URL = lerStorage("api_url", PADRAO_API);
+
+  // ================= Estado =================
+  let historico = [];
+  let controlador = null;
+  let gerando = false;
+  let contador = 0;
+
+  const chatbox = document.getElementById("chatbox");
+  const input = document.getElementById("promptInput");
+  const btnEnviar = document.getElementById("btnEnviar");
+  const statusEl = document.getElementById("status");
+  const logStatus = document.getElementById("logStatus");
+  const btnLog = document.getElementById("btnLog");
+
+  // ================= LOG EM ARQUIVO .txt =================
+  // Usa a File System Access API (Chromium/Chrome em http://localhost ou https).
+  // Cada interação e cada feedback é ANEXADO ao final do arquivo escolhido.
+  // Se o navegador não suportar, o log fica guardado no navegador e pode ser baixado.
+  const SUPORTA_ARQUIVO = typeof window.showSaveFilePicker === "function";
+  let logHandle = null;
+  let pendente = [];                 // textos ainda não gravados no arquivo
+  let filaLog = Promise.resolve();   // garante gravação em ordem
+  let jaPerguntouArquivo = false;
+
+  // --- guarda o "ponteiro" do arquivo no IndexedDB para reaproveitar depois de recarregar ---
+  function abrirDB() {
+    return new Promise((res, rej) => {
+      const r = indexedDB.open("pierre_db", 1);
+      r.onupgradeneeded = () => r.result.createObjectStore("kv");
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    });
+  }
+  async function idbSet(k, v) {
+    try { const db = await abrirDB(); await new Promise((res, rej) => { const t = db.transaction("kv", "readwrite"); t.objectStore("kv").put(v, k); t.oncomplete = res; t.onerror = () => rej(t.error); }); } catch (e) {}
+  }
+  async function idbGet(k) {
+    try { const db = await abrirDB(); return await new Promise((res, rej) => { const q = db.transaction("kv").objectStore("kv").get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); } catch (e) { return null; }
+  }
+
+  function atualizarStatusLog(msg, ok) {
+    logStatus.textContent = msg;
+    logStatus.classList.toggle("ok", !!ok);
+  }
+
+  function backupLocal(texto) {
+    try {
+      let atual = localStorage.getItem("log_txt") || "";
+      atual += texto;
+      if (atual.length > LIMITE_BACKUP) atual = atual.slice(atual.length - LIMITE_BACKUP);
+      localStorage.setItem("log_txt", atual);
+    } catch (e) {}
+  }
+
+  async function gravarNoArquivo(texto) {
+    const tamanho = (await logHandle.getFile()).size;
+    const w = await logHandle.createWritable({ keepExistingData: true });
+    await w.seek(tamanho);
+    await w.write(texto);
+    await w.close();
+  }
+
+  function registrarLog(texto) {
+    backupLocal(texto);
+    if (!logHandle) { pendente.push(texto); return; }
+    filaLog = filaLog
+      .then(() => gravarNoArquivo(texto))
+      .catch((e) => {
+        console.error(e);
+        pendente.push(texto);
+        atualizarStatusLog("Erro ao gravar no arquivo — clique em “Escolher arquivo de log”.");
+        logHandle = null;
+      });
+  }
+
+  async function descarregarPendentes() {
+    if (!logHandle || !pendente.length) return;
+    const texto = pendente.join("");
+    pendente = [];
+    filaLog = filaLog.then(() => gravarNoArquivo(texto)).catch((e) => { console.error(e); pendente.unshift(texto); });
+    await filaLog;
+  }
+
+  async function definirArquivo(handle) {
+    logHandle = handle;
+    await idbSet("log_handle", handle);
+    atualizarStatusLog(`Gravando em: ${handle.name}`, true);
+    await descarregarPendentes();
+  }
+
+  async function escolherArquivoLog() {
+    if (!SUPORTA_ARQUIVO) {
+      atualizarStatusLog("Este navegador não grava em arquivo direto (use Chromium em http://localhost). O log fica salvo aqui e pode ser baixado.");
+      return false;
+    }
+    // Reaproveita o arquivo anterior, se ainda existir e o navegador permitir
+    const guardado = await idbGet("log_handle");
+    if (guardado && !logHandle) {
+      try {
+        if ((await guardado.requestPermission({ mode: "readwrite" })) === "granted") {
+          await definirArquivo(guardado);
+          return true;
+        }
+      } catch (e) {}
+    }
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: NOME_LOG,
+        types: [{ description: "Texto", accept: { "text/plain": [".txt"] } }]
+      });
+      await definirArquivo(handle);
+      return true;
+    } catch (e) {
+      if (e.name !== "AbortError") console.error(e);
+      return false;
+    }
+  }
+
+  function baixarLog() {
+    const texto = (lerStorage("log_txt", "") || "") + pendente.filter(Boolean).join("");
+    if (!texto.trim()) { atualizarStatusLog("Ainda não há nada no log."); return; }
+    const blob = new Blob([texto], { type: "text/plain;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = NOME_LOG;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+
+  function formatarInteracao(id, pergunta, resposta, segundos, interrompida) {
+    return `==================== #${id} | ${new Date().toISOString()} ====================\n` +
+           `Usuário: ${pergunta}\n\n` +
+           `Pierre: ${resposta}${interrompida ? "\n[resposta interrompida]" : ""}\n\n` +
+           `Tempo de geração: ${segundos.toFixed(1)}s\n\n`;
+  }
+
+  function formatarFeedback(id, tipo) {
+    return `[FEEDBACK] ${new Date().toISOString()} | interação #${id} | ${tipo === "like" ? "👍 like" : "👎 dislike"}\n\n`;
+  }
+
+  // ================= UI =================
+  function adicionarMensagem(texto, remetente) {
+    const div = document.createElement("div");
+    div.classList.add("mensagem", remetente);
+    div.textContent = texto;
+    chatbox.appendChild(div);
+    chatbox.scrollTop = chatbox.scrollHeight;
+    return div;
+  }
+
+  function anexarFeedback(divMensagem, idInteracao) {
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    const btnLike = document.createElement("button");
+    const btnDislike = document.createElement("button");
+    btnLike.className = btnDislike.className = "btn-feedback";
+    btnLike.textContent = "👍"; btnDislike.textContent = "👎";
+
+    const marcar = (tipo, btn) => {
+      btnLike.classList.remove("ativo"); btnDislike.classList.remove("ativo");
+      btn.classList.add("ativo");
+      registrarLog(formatarFeedback(idInteracao, tipo));
+    };
+    btnLike.onclick = () => marcar("like", btnLike);
+    btnDislike.onclick = () => marcar("dislike", btnDislike);
+    meta.append(btnLike, btnDislike);
+    divMensagem.appendChild(meta);
+  }
+
+  function definirGerando(v) {
+    gerando = v;
+    btnEnviar.textContent = v ? "Parar" : "Enviar";
+    btnEnviar.classList.toggle("parar", v);
+  }
+
+  async function verificarServidor() {
+    try {
+      const r = await fetch(`${API_URL}/health`, { cache: "no-store" });
+      if (!r.ok) throw new Error();
+      statusEl.className = "on";
+      statusEl.querySelector("span").textContent = "servidor conectado";
+    } catch (e) {
+      statusEl.className = "off";
+      statusEl.querySelector("span").textContent = "servidor offline";
+    }
+  }
+
+  // ================= Envio com streaming =================
+  async function enviarPrompt() {
+    if (gerando) { if (controlador) controlador.abort(); return; }
+
+    const prompt = input.value.trim();
+    if (!prompt) return;
+
+    // Na primeira pergunta, pede (uma vez) o arquivo de log. O clique em "Enviar" conta como gesto do usuário.
+    if (!logHandle && !jaPerguntouArquivo && SUPORTA_ARQUIVO) {
+      jaPerguntouArquivo = true;
+      await escolherArquivoLog();
+    }
+
+    adicionarMensagem(prompt, "usuario");
+    input.value = "";
+    input.style.height = "auto";
+    historico.push({ role: "user", content: prompt });
+
+    const id = ++contador;
+    const inicio = performance.now();
+    const msgBot = adicionarMensagem("Gerando resposta…", "bot");
+    let acumulado = "";
+    let interrompida = false;
+    controlador = new AbortController();
+    definirGerando(true);
+
+    const mensagens = [{ role: "system", content: SYSTEM_PROMPT }]
+      .concat(historico.slice(-MAX_MENSAGENS_CONTEXTO));
+
+    try {
+      const resp = await fetch(`${API_URL}/v1/chat/completions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: controlador.signal,
+        body: JSON.stringify({ messages: mensagens, max_tokens: MAX_TOKENS, stream: true })
+      });
+      if (!resp.ok) throw new Error("HTTP " + resp.status);
+
+      const leitor = resp.body.getReader();
+      const dec = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await leitor.read();
+        if (done) break;
+        buffer += dec.decode(value, { stream: true });
+        const linhas = buffer.split("\n");
+        buffer = linhas.pop();
+        for (const linha of linhas) {
+          const t = linha.trim();
+          if (!t.startsWith("data:")) continue;
+          const dados = t.slice(5).trim();
+          if (dados === "[DONE]") continue;
+          try {
+            const pedaco = JSON.parse(dados).choices?.[0]?.delta?.content;
+            if (pedaco) {
+              acumulado += pedaco;
+              msgBot.textContent = acumulado;
+              chatbox.scrollTop = chatbox.scrollHeight;
+            }
+          } catch (e) {}
+        }
+      }
+    } catch (erro) {
+      if (erro.name === "AbortError") {
+        interrompida = true;
+      } else {
+        msgBot.classList.add("erro");
+        msgBot.textContent = `Não consegui falar com o servidor em ${API_URL}. Confira se o llama-server está rodando.`;
+        historico.pop();
+        console.error(erro);
+        verificarServidor();
+        controlador = null;
+        definirGerando(false);
+        return;
+      }
+    }
+
+    const segundos = (performance.now() - inicio) / 1000;
+    if (!acumulado) {
+      msgBot.textContent = interrompida ? "[interrompido]" : "(resposta vazia)";
+      if (!interrompida) historico.pop();
+    } else {
+      if (interrompida) msgBot.textContent = acumulado + "\n\n[interrompido]";
+      historico.push({ role: "assistant", content: acumulado });
+      registrarLog(formatarInteracao(id, prompt, acumulado, segundos, interrompida));
+      anexarFeedback(msgBot, id);
+    }
+
+    controlador = null;
+    definirGerando(false);
+    input.focus();
+  }
+
+  // ================= Eventos =================
+  btnEnviar.addEventListener("click", enviarPrompt);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviarPrompt(); }
+  });
+  input.addEventListener("input", () => {
+    input.style.height = "auto";
+    input.style.height = Math.min(input.scrollHeight, 160) + "px";
+  });
+  document.getElementById("btnLimpar").addEventListener("click", () => {
+    if (controlador) controlador.abort();
+    historico = [];
+    chatbox.innerHTML = "";
+    registrarLog(`---------- conversa reiniciada em ${new Date().toISOString()} ----------\n\n`);
+  });
+  document.getElementById("btnConfig").addEventListener("click", () => {
+    const novo = prompt("Endereço da API (llama-server):", API_URL);
+    if (novo && novo.trim()) {
+      API_URL = novo.trim().replace(/\/+$/, "");
+      gravarStorage("api_url", API_URL);
+      verificarServidor();
+    }
+  });
+  btnLog.addEventListener("click", escolherArquivoLog);
+  document.getElementById("btnBaixar").addEventListener("click", baixarLog);
+
+  // ================= Início =================
+  (async function iniciar() {
+    verificarServidor();
+    setInterval(verificarServidor, 15000);
+    if (!SUPORTA_ARQUIVO) {
+      btnLog.style.display = "none";
+      atualizarStatusLog("Log só no navegador (este navegador/endereço não permite gravar arquivo direto). Use “Baixar log”.");
+    } else {
+      const guardado = await idbGet("log_handle");
+      if (guardado) {
+        try {
+          if ((await guardado.queryPermission({ mode: "readwrite" })) === "granted") await definirArquivo(guardado);
+          else atualizarStatusLog(`Arquivo anterior: ${guardado.name} — será reativado ao enviar a primeira pergunta.`);
+        } catch (e) {}
+      } else {
+        atualizarStatusLog("Nenhum arquivo de log escolhido ainda.");
+      }
+    }
+    registrarLog(`########## sessão iniciada em ${new Date().toISOString()} ##########\n\n`);
+    adicionarMensagem("Olá! Sou o Pierre, rodando localmente. Pode perguntar.", "bot");
+  })();
+</script>
+</body>
+</html>
