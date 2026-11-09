@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat PiR V1G</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
+        #chatbox { border: 1px solid #ccc; border-radius: 8px; padding: 15px; height: 500px; overflow-y: auto; background-color: #f9f9f9; margin-bottom: 15px; }
+        .mensagem { margin-bottom: 15px; padding: 10px; border-radius: 8px; max-width: 80%; }
+        .mensagem img { display: block; max-width: 100%; max-height: 260px; border-radius: 6px; margin-bottom: 6px; }
+        .usuario { background-color: #d1e7dd; margin-left: auto; text-align: right; }
+        .usuario img { margin-left: auto; }
+        .bot { background-color: #e2e3e5; margin-right: auto; text-align: left; }
+        .feedback-container { margin-top: 8px; text-align: right; }
+        .btn-feedback { cursor: pointer; background: none; border: 1px solid #ccc; padding: 5px 10px; border-radius: 5px; margin-left: 5px; color: inherit; }
+        .btn-feedback:hover { background-color: #ddd; }
+        .input-group { display: flex; gap: 10px; }
+        input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        button { padding: 10px 20px; background-color: #0d6efd; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0b5ed7; }
+        #btnAnexar { background-color: #6c757d; padding: 10px 14px; }
+        #btnAnexar:hover { background-color: #5c636a; }
+        #previewAnexo { display: none; align-items: center; gap: 10px; margin-bottom: 10px; }
+        #previewAnexo img { max-height: 70px; border-radius: 6px; border: 1px solid #ccc; }
+        #btnRemoverAnexo { background-color: #dc3545; padding: 4px 10px; }
+        #btnRemoverAnexo:hover { background-color: #bb2d3b; }
+    </style>
+</head>
+<body>
+
+    <h2>PiR V1G</h2>
+
+    <div id="chatbox"></div>
+
+    <div id="previewAnexo">
+        <img id="previewImg" alt="Imagem anexada">
+        <button id="btnRemoverAnexo" onclick="limparAnexo()">Remover</button>
+    </div>
+
+    <div class="input-group">
+        <input type="file" id="arquivoImagem" accept="image/*" style="display:none">
+        <button id="btnAnexar" title="Anexar imagem" onclick="document.getElementById('arquivoImagem').click()">📎</button>
+        <input type="text" id="promptInput" placeholder="Digite seu prompt aqui..." onkeypress="handleEnter(event)">
+        <button onclick="enviarPrompt()">Enviar</button>
+    </div>
+
+    <script>
+        const API_URL = "https://racoon-crook-passerby.ngrok-free.dev";
+        const session_id = "sessao_" + Math.random().toString(36).substring(2, 15);
+        const MAX_LADO = 1024; // reduz a imagem antes de enviar
+
+        // Imagem anexada (data URL JPEG) aguardando envio
+        let imagemSelecionada = null;
+
+        function adicionarMensagem(texto, remetente, idInteracao = null, imagemSrc = null) {
+            const chatbox = document.getElementById("chatbox");
+            const divMensagem = document.createElement("div");
+            divMensagem.classList.add("mensagem", remetente);
+
+            if (imagemSrc) {
+                const img = document.createElement("img");
+                img.src = imagemSrc;
+                divMensagem.appendChild(img);
+            }
+            if (texto) {
+                const span = document.createElement("span");
+                span.innerText = texto;
+                divMensagem.appendChild(span);
+            }
+
+            if (remetente === "bot" && idInteracao) {
+                const feedbackDiv = document.createElement("div");
+                feedbackDiv.classList.add("feedback-container");
+
+                const btnLike = document.createElement("button");
+                btnLike.classList.add("btn-feedback");
+                btnLike.innerText = "👍";
+                btnLike.onclick = () => registrarFeedback(idInteracao, "like", feedbackDiv);
+
+                const btnDislike = document.createElement("button");
+                btnDislike.classList.add("btn-feedback");
+                btnDislike.innerText = "👎";
+                btnDislike.onclick = () => registrarFeedback(idInteracao, "dislike", feedbackDiv);
+
+                feedbackDiv.appendChild(btnLike);
+                feedbackDiv.appendChild(btnDislike);
+                divMensagem.appendChild(feedbackDiv);
+            }
+
+            chatbox.appendChild(divMensagem);
+            chatbox.scrollTop = chatbox.scrollHeight;
+            return divMensagem;
+        }
+
+        // Lê o arquivo, reduz o tamanho e devolve um data URL JPEG
+        function lerImagem(arquivo) {
+            return new Promise((resolve, reject) => {
+                const leitor = new FileReader();
+                leitor.onerror = reject;
+                leitor.onload = () => {
+                    const img = new Image();
+                    img.onerror = reject;
+                    img.onload = () => {
+                        const escala = Math.min(1, MAX_LADO / Math.max(img.width, img.height));
+                        const canvas = document.createElement("canvas");
+                        canvas.width = Math.round(img.width * escala);
+                        canvas.height = Math.round(img.height * escala);
+                        const ctx = canvas.getContext("2d");
+                        ctx.fillStyle = "#fff"; // fundo branco para PNG com transparência
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        resolve(canvas.toDataURL("image/jpeg", 0.85));
+                    };
+                    img.src = leitor.result;
+                };
+                leitor.readAsDataURL(arquivo);
+            });
+        }
+
+        async function anexarImagem(arquivo) {
+            if (!arquivo || !arquivo.type.startsWith("image/")) return;
+            try {
+                imagemSelecionada = await lerImagem(arquivo);
+                document.getElementById("previewImg").src = imagemSelecionada;
+                document.getElementById("previewAnexo").style.display = "flex";
+            } catch (erro) {
+                alert("Não foi possível ler a imagem.");
+                console.error(erro);
+            }
+        }
+
+        function limparAnexo() {
+            imagemSelecionada = null;
+            document.getElementById("arquivoImagem").value = "";
+            document.getElementById("previewAnexo").style.display = "none";
+        }
+
+        document.getElementById("arquivoImagem").addEventListener("change", (e) => {
+            anexarImagem(e.target.files[0]);
+        });
+
+        // Colar imagem da área de transferência (Ctrl+V)
+        document.addEventListener("paste", (e) => {
+            for (const item of e.clipboardData.items) {
+                if (item.type.startsWith("image/")) {
+                    anexarImagem(item.getAsFile());
+                    break;
+                }
+            }
+        });
+
+        async function enviarPrompt() {
+            const input = document.getElementById("promptInput");
+            const prompt = input.value.trim();
+            if (!prompt && !imagemSelecionada) return;
+
+            const imagem = imagemSelecionada;
+            adicionarMensagem(prompt, "usuario", null, imagem);
+            input.value = "";
+            limparAnexo();
+
+            const loadingMsg = adicionarMensagem("Gerando resposta...", "bot");
+
+            // O histórico é mantido no servidor (por session_id): envia só o prompt atual
+            try {
+                const resposta = await fetch(`${API_URL}/chat`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ session_id: session_id, prompt: prompt, imagem: imagem, max_tokens: 4000 })
+                });
+
+                if (!resposta.ok) throw new Error("Erro na rede");
+
+                const dados = await resposta.json();
+
+                loadingMsg.remove();
+                adicionarMensagem(dados.resposta, "bot", dados.id_interacao);
+
+            } catch (erro) {
+                loadingMsg.innerText = "Erro ao conectar com a API.";
+                console.error(erro);
+            }
+        }
+
+        async function registrarFeedback(idInteracao, tipoFeedback, containerElement) {
+            try {
+                await fetch(`${API_URL}/feedback`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id_interacao: idInteracao, feedback: tipoFeedback })
+                });
+
+                containerElement.innerHTML = `<span style="font-size: 0.8em; color: gray;">Feedback enviado (${tipoFeedback === 'like' ? '👍' : '👎'})</span>`;
+            } catch (erro) {
+                alert("Erro ao enviar o feedback.");
+                console.error(erro);
+            }
+        }
+
+        function handleEnter(evento) {
+            if (evento.key === "Enter") {
+                enviarPrompt();
+            }
+        }
+    </script>
+
+</body>
+</html>
